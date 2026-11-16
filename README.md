@@ -1,12 +1,20 @@
+**EN** | [RU](docs/README.ru.md)
+
 # AI / Data Job Salary Predictor — ML Zoomcamp 2026 Midterm
 
-**Problem.** Predict indicative gross annual compensation in USD from role, seniority, employment type, employee/company geography, remote ratio, and company size. Use as a statistical benchmark; **not** a guaranteed salary offer or a claim about Georgia B2B market rates. This is an independent educational project.
+**Problem.** Predict indicative gross annual compensation in USD from role, seniority, employment type, employee and company geography, remote ratio, and company size. Treat the result as a statistical benchmark, not a guaranteed offer or a claim about Georgia B2B rates. This is an independent educational project.
 
-**Source.** aijobs.net Global AI/ML/Data Science Salary Index: <https://github.com/foorilla/ai-jobs-net-salaries>, CC0. Source snapshot downloaded by `scripts/download.py`. `data/source.json` records URL, byte count and SHA256.
+**Data.** aijobs.net Global AI/ML/Data Science Salary Index, published under CC0: <https://github.com/foorilla/ai-jobs-net-salaries>. `scripts/download.py` downloads the CSV; `data/source.json` records its URL, byte count, and SHA256.
 
-## Run locally (Python 3.12 recommended)
+## Results from the checked run
 
-This repo uses `uv` and a local `.venv`. After installing `uv`, run:
+Cleaning retained 71,890 rows; training used a deterministic sample of 50,000. The chronological split used years through 2023 for training, 2024 for validation, and 2025+ for test. Ridge regression with `alpha=1` won validation selection (MAE $49,934.15, RMSE $71,760.75). On the held-out test set it achieved **MAE $47,217.81** and **RMSE $67,735.40**. The median dummy validation baseline had MAE $57,526.48. Full candidate results are in [`models/metrics.json`](models/metrics.json).
+
+EDA reports target distribution, missingness, median salary by experience, and permutation importance. The current Ridge analysis assigns the largest predictive contributions to job title, experience level, employee residence, and company location. Feature importance is model-specific and descriptive; correlated features can share or obscure importance. See [`reports/EDA.md`](reports/EDA.md), [`reports/salary_histogram.png`](reports/salary_histogram.png), and [`reports/feature_importance.png`](reports/feature_importance.png).
+
+## Setup and run
+
+Install `uv`, then run these commands from the repository root (Python 3.12):
 
 ```bash
 make setup
@@ -14,10 +22,11 @@ make data
 make eda
 make train
 make test
-make serve
 ```
 
-In another terminal:
+`.envrc` adds the project `.venv/bin` to `PATH`. If using direnv, approve it once with `direnv allow`. Without direnv, use `.venv/bin/python` or the Make targets.
+
+Start the API with `make serve`, then in another terminal check it:
 
 ```bash
 curl -fsS http://localhost:8080/health
@@ -26,69 +35,41 @@ curl -fsS -X POST http://localhost:8080/predict \
   -d @sample-request.json
 ```
 
-The trained artifact `models/model.joblib` is committed with the project so a
-fresh clone contains everything needed to build and run the Docker image. To
-retrain it from the source data, run `make data` followed by `make train`.
-Then build and start the container:
+## Docker
+
+The trained model artifact is tracked in Git, so a clean clone can build the service image:
 
 ```bash
 docker build -t mlzc-salary .
 docker run --rm -p 8080:8080 mlzc-salary
 ```
 
-**Docker verification:** with the container running, check both endpoints:
+Or run `make docker-check` to build the image, start a temporary container, and smoke-test both endpoints. The original CSV is downloaded by `make data`; it is not committed.
 
-```bash
-curl -fsS http://localhost:8080/health
-curl -fsS -X POST http://localhost:8080/predict \
-  -H 'Content-Type: application/json' \
-  -d @sample-request.json
-```
+## Data and modeling
 
-`models/model.joblib` is tracked in Git and included in the image. The original
-CSV need not be committed; the download script fetches it. Training metrics and
-EDA outputs are generated locally and are not required to serve predictions.
+Model inputs are `experience_level`, `employment_type`, `job_title`, `employee_residence`, `remote_ratio`, `company_location`, and `company_size`. `salary`, `salary_currency`, and `salary_in_usd` are excluded from features to prevent target leakage. `work_year` is used only to split observations. If the chronological split does not have enough rows in each partition, training uses a deterministic random 60/20/20 fallback and records it in the metrics JSON.
 
-## Data and leakage controls
+`train.py` compares a median `DummyRegressor`, two Ridge regularization strengths, and two Random Forest depths using validation MAE/RMSE. It selects by validation MAE, refits on train plus validation, and evaluates the holdout once. The notebook [`notebook.ipynb`](notebook.ipynb) documents cleaning, EDA, model selection, and feature importance. See the [docs index](docs/README.md) for detailed methodology and operation notes.
 
-Input fields: `experience_level`, `employment_type`, `job_title`, `employee_residence`, `remote_ratio`, `company_location`, `company_size`. Never use `salary`, `salary_currency`, or `salary_in_usd` to predict `salary_in_usd` (direct/derived target leakage). `work_year` is used only to split the observations: <=2023 for training, 2024 validation, >=2025 test if these years have enough records; deterministic random fallback documented in `models/metrics.json`. Model fitting may use up to 50k reproducibly sampled rows to keep runtime short.
+This historical survey data can have sample-selection and geographic bias; exact duplicate removal cannot identify repeated respondents. The model is unsuitable for individual compensation decisions.
 
-## Model selection
+## Optional Cloud Run deployment
 
-- DummyRegressor(median) is the baseline.
-- Ridge (two regularization settings) and RandomForestRegressor (two max-depth settings) are compared on validation MAE/RMSE.
-- The winner is refitted on train+validation and **only then** evaluated on held-out test data.
-- `models/metrics.json` contains the actual metrics and model choice; do not invent them.
-- `reports/EDA.md` and `reports/salary_histogram.png` contain EDA artifacts.
+The repository includes Cloud Run deployment instructions in [`docs/service-and-deployment.md`](docs/service-and-deployment.md). Deployment requires a configured GCP project and billing. No cloud deployment URL or live service is claimed by this repository.
 
-This is a survey-based historical dataset, likely with strong geographic/sample-selection bias. Do not make a job offer or individual compensation decision from the model.
+## Course submission checklist
 
-## Deployment: Google Cloud Run (optional, requires billing)
-
-```bash
-# Must have local model.joblib and configured gcloud CLI / active project
-PROJECT_ID="YOUR_GCP_PROJECT"
-gcloud config set project "$PROJECT_ID"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
-gcloud run deploy mlzc-salary --source . --region europe-west1 \
-  --allow-unauthenticated --memory 1Gi --max-instances 1 --min-instances 0
-# Then curl the issued service URL with sample-request.json
-```
-
-Set a billing budget and verify permissions before cloud deployment. `--allow-unauthenticated` makes the example prediction service publicly accessible: deploy no private data and use rate/spending limits. If deployment is blocked, document why and keep verified local Docker evidence.
-
-## Submission checklist
-
-- [ ] Screenshots and EDA narrative generated from actual dataset.
-- [ ] `models/metrics.json` contains real (not synthetic) model metrics.
-- [ ] `pytest -q` passes and public Docker build works from clean Git clone.
-- [ ] `/predict` tested with `sample-request.json`.
-- [ ] Deploy URL / video / screenshot and instructions added if applicable.
-- [ ] Repo public; exact commit SHA recorded.
-- [ ] Project link and commit SHA submitted at https://courses.datatalks.club/ml-zoomcamp-2026/project/midterm before 2026-11-16 23:00 UTC.
-- [ ] Complete three assigned peer reviews by 2026-11-23 23:00 UTC.
+- [x] Data source and download instructions documented.
+- [x] Training, EDA, notebook, model artifact, and real metrics included.
+- [x] Automated test passed: `1 passed` (synthetic fixture tests validate application paths, not model quality).
+- [x] Docker image built; `/health` and `/predict` smoke tests passed.
+- [ ] Record the final commit SHA and submit the project through the course platform.
+- [ ] Complete the three assigned peer reviews.
 
 ## References
 
-- Course requirements: https://github.com/DataTalksClub/machine-learning-zoomcamp/tree/main/projects
-- Course project page: https://courses.datatalks.club/ml-zoomcamp-2026/project/midterm
+- [ML Zoomcamp project requirements](https://github.com/DataTalksClub/machine-learning-zoomcamp/tree/main/projects)
+- [ML Zoomcamp midterm submission](https://courses.datatalks.club/ml-zoomcamp-2026/project/midterm)
+
+**EN** | [RU](docs/README.ru.md)
