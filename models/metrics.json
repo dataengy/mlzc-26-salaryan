@@ -1,0 +1,67 @@
+{
+  "dataset_rows_clean": 71890,
+  "used_rows": 50000,
+  "split": "temporal: <=2023 / 2024 / >=2025",
+  "train_rows": 4122,
+  "validation_rows": 19338,
+  "test_rows": 26540,
+  "target": "salary_in_usd",
+  "features": [
+    "experience_level",
+    "employment_type",
+    "job_title",
+    "employee_residence",
+    "remote_ratio",
+    "company_location",
+    "company_size"
+  ],
+  "validation_comparison": [
+    {
+      "candidate": "dummy_median",
+      "kind": "dummy",
+      "param": 1,
+      "mae_usd": 57526.48,
+      "rmse_usd": 78617.46
+    },
+    {
+      "candidate": "ridge_alpha_1",
+      "kind": "ridge",
+      "param": 1,
+      "mae_usd": 49934.15,
+      "rmse_usd": 71760.75
+    },
+    {
+      "candidate": "ridge_alpha_20",
+      "kind": "ridge",
+      "param": 20,
+      "mae_usd": 50024.43,
+      "rmse_usd": 71973.28
+    },
+    {
+      "candidate": "forest_depth_8",
+      "kind": "forest",
+      "param": 8,
+      "mae_usd": 50428.56,
+      "rmse_usd": 72155.6
+    },
+    {
+      "candidate": "forest_depth_12",
+      "kind": "forest",
+      "param": 12,
+      "mae_usd": 50360.73,
+      "rmse_usd": 72058.42
+    }
+  ],
+  "selected_model": {
+    "candidate": "ridge_alpha_1",
+    "kind": "ridge",
+    "param": 1,
+    "mae_usd": 49934.15,
+    "rmse_usd": 71760.75
+  },
+  "holdout_test": {
+    "mae_usd": 47217.81,
+    "rmse_usd": 67735.4
+  },
+  "note": "Predicts annual USD compensation, not a guaranteed offer. Dataset may be nonrepresentative."
+}
