@@ -5,8 +5,8 @@ import joblib
 from pathlib import Path
 from fastapi.testclient import TestClient
 
-from mlzoomcamp_salary_minimal.train import run
-from mlzoomcamp_salary_minimal.app import app, load_model
+from mlzc_26_salaryan.train import run
+from mlzc_26_salaryan.app import app, load_model
 
 
 def test_training_and_api(tmp_path, monkeypatch):

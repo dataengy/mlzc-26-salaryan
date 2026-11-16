@@ -1,25 +1,25 @@
 set shell := ["bash", "-cu"]
 
 setup:
-    python -m pip install -r requirements.txt
+    make setup
 
 data:
-    python scripts/download.py
+    make data
 
 eda:
-    python eda.py
+    make eda
 
 train:
-    python train.py
+    make train
 
 test:
-    pytest -q
+    make test
 
 serve:
-    uvicorn app:app --reload --port 8080
+    make serve
 
 docker-build:
-    docker build -t mlzc-salary .
+    make docker-build
 
 docker-run:
-    docker run --rm -p 8080:8080 mlzc-salary
+    make docker-run

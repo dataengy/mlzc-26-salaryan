@@ -1,5 +1,5 @@
 [project]
-name = "mlzoomcamp-salary-minimal"
+name = "mlzc-26-salaryan"
 version = "0.1.0"
 description = "Reproducible AI and data job salary prediction project"
 readme = "README.md"

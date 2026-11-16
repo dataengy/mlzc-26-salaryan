@@ -32,7 +32,7 @@ Start the API with `make serve`, then in another terminal check it:
 curl -fsS http://localhost:8080/health
 curl -fsS -X POST http://localhost:8080/predict \
   -H 'Content-Type: application/json' \
-  -d @sample-request.json
+  -d @data/examples/sample-request.json
 ```
 
 ## Docker
@@ -50,22 +50,13 @@ Or run `make docker-check` to build the image, start a temporary container, and 
 
 Model inputs are `experience_level`, `employment_type`, `job_title`, `employee_residence`, `remote_ratio`, `company_location`, and `company_size`. `salary`, `salary_currency`, and `salary_in_usd` are excluded from features to prevent target leakage. `work_year` is used only to split observations. If the chronological split does not have enough rows in each partition, training uses a deterministic random 60/20/20 fallback and records it in the metrics JSON.
 
-`train.py` compares a median `DummyRegressor`, two Ridge regularization strengths, and two Random Forest depths using validation MAE/RMSE. It selects by validation MAE, refits on train plus validation, and evaluates the holdout once. The notebook [`notebook.ipynb`](notebook.ipynb) documents cleaning, EDA, model selection, and feature importance. See the [docs index](docs/README.md) for detailed methodology and operation notes.
+`src/mlzc_26_salaryan/train.py` compares a median `DummyRegressor`, two Ridge regularization strengths, and two Random Forest depths using validation MAE/RMSE. It selects by validation MAE, refits on train plus validation, and evaluates the holdout once. The notebook [`notebooks/salary-prediction.ipynb`](notebooks/salary-prediction.ipynb) documents cleaning, EDA, model selection, and feature importance. See the [docs index](docs/README.md) for detailed methodology and operation notes.
 
 This historical survey data can have sample-selection and geographic bias; exact duplicate removal cannot identify repeated respondents. The model is unsuitable for individual compensation decisions.
 
 ## Optional Cloud Run deployment
 
 The repository includes Cloud Run deployment instructions in [`docs/service-and-deployment.md`](docs/service-and-deployment.md). Deployment requires a configured GCP project and billing. No cloud deployment URL or live service is claimed by this repository.
-
-## Course submission checklist
-
-- [x] Data source and download instructions documented.
-- [x] Training, EDA, notebook, model artifact, and real metrics included.
-- [x] Automated test passed: `1 passed` (synthetic fixture tests validate application paths, not model quality).
-- [x] Docker image built; `/health` and `/predict` smoke tests passed.
-- [ ] Record the final commit SHA and submit the project through the course platform.
-- [ ] Complete the three assigned peer reviews.
 
 ## References
 

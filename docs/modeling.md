@@ -10,7 +10,7 @@ make train
 make test
 ```
 
-`train.py` performs deterministic cleaning, sampling, split construction, validation comparison, final refitting, and artifact/report writing. The model is serialized to `models/model.joblib`; metrics and the split details are written to `models/metrics.json`.
+`src/mlzc_26_salaryan/train.py` performs deterministic cleaning, sampling, split construction, validation comparison, final refitting, and artifact/report writing. The model is serialized to `models/model.joblib`; metrics and the split details are written to `models/metrics.json`.
 
 ## Split policy
 

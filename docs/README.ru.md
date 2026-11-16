@@ -32,7 +32,7 @@ make test
 curl -fsS http://localhost:8080/health
 curl -fsS -X POST http://localhost:8080/predict \
   -H 'Content-Type: application/json' \
-  -d @sample-request.json
+  -d @../data/examples/sample-request.json
 ```
 
 ## Docker
@@ -50,7 +50,7 @@ docker run --rm -p 8080:8080 mlzc-salary
 
 Признаки: `experience_level`, `employment_type`, `job_title`, `employee_residence`, `remote_ratio`, `company_location`, `company_size`. `salary`, `salary_currency` и `salary_in_usd` не передаются модели, чтобы избежать утечки целевой переменной. `work_year` используется только для разбиения данных. Если временные группы недостаточны, применяется детерминированное случайное разделение 60/20/20; факт записывается в JSON метрик.
 
-`train.py` сравнивает медианный `DummyRegressor`, два значения регуляризации Ridge и две глубины Random Forest по MAE/RMSE на валидации. Победитель выбирается по MAE, переобучается на обучающей и валидационной выборках и один раз оценивается на тесте. Notebook [`notebook.ipynb`](../notebook.ipynb) описывает очистку, EDA, сравнение моделей и важность признаков. Подробности — в [индексе документации](README.md).
+`src/mlzc_26_salaryan/train.py` сравнивает медианный `DummyRegressor`, два значения регуляризации Ridge и две глубины Random Forest по MAE/RMSE на валидации. Победитель выбирается по MAE, переобучается на обучающей и валидационной выборках и один раз оценивается на тесте. Notebook [`notebooks/salary-prediction.ipynb`](../notebooks/salary-prediction.ipynb) описывает очистку, EDA, сравнение моделей и важность признаков. Подробности — в [индексе документации](README.md).
 
 Исторический опрос может иметь смещения выборки, географии и времени; удаление точных дублей не выявляет повторных респондентов. Не используйте модель для решений о компенсации конкретным людям.
 

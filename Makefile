@@ -9,22 +9,22 @@ kernel: setup
 	.venv/bin/python -m ipykernel install --user --name mlzoomcamp-salary --display-name "Python (ML Zoomcamp Salary)"
 
 run-jupyter: kernel
-	.venv/bin/python -m jupyter notebook notebook.ipynb
+	MPLCONFIGDIR=.run/matplotlib .venv/bin/python -m jupyter notebook notebooks/salary-prediction.ipynb
 
 data:
-	.venv/bin/python scripts/download.py
+	PYTHONPYCACHEPREFIX=.run/python-cache .venv/bin/python scripts/download.py
 
 eda:
-	PYTHONPATH=src .venv/bin/python -m mlzoomcamp_salary_minimal.eda
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m mlzc_26_salaryan.eda
 
 train:
-	PYTHONPATH=src .venv/bin/python -m mlzoomcamp_salary_minimal.train
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m mlzc_26_salaryan.train
 
 test:
-	PYTHONPATH=src .venv/bin/python -m pytest -q
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m pytest -q
 
 serve:
-	PYTHONPATH=src .venv/bin/python -m uvicorn mlzoomcamp_salary_minimal.app:app --reload --port 8080
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m uvicorn mlzc_26_salaryan.app:app --reload --port 8080
 
 docker-build:
 	docker build -t mlzc-salary .

@@ -3,8 +3,11 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 *.ru.md
-.ipynb_checkpoints/
-doctor.log
+.run/
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
 *.bak*
 data/*.csv
 # The trained model is required by the Docker image and prediction API.

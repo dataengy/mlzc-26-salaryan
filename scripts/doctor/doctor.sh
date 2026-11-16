@@ -96,7 +96,7 @@ printf 'envrc_exists='; [[ -f .envrc ]] && echo yes || echo no
 printf 'venv_bin_in_PATH='; case ":$PATH:" in *":$ROOT/.venv/bin:"*) echo yes;; *) echo no;; esac
 
 section 'Expected files'
-for file in requirements.txt Makefile .envrc scripts/download.py eda.py train.py app.py pytest.ini data/salaries.csv data/source.json reports/EDA.md reports/salary_histogram.png models/model.joblib models/metrics.json; do
+for file in requirements.txt Makefile .envrc scripts/download.py src/mlzc_26_salaryan/eda.py src/mlzc_26_salaryan/train.py src/mlzc_26_salaryan/app.py src/mlzc_26_salaryan/model_utils.py notebooks/salary-prediction.ipynb data/examples/sample-request.json data/salaries.csv data/source.json reports/EDA.md reports/salary_histogram.png models/model.joblib models/metrics.json; do
   if [[ -f "$file" ]]; then printf 'file=%s exists bytes=%s\n' "$file" "$(wc -c < "$file" | tr -d ' ')"; else printf 'file=%s MISSING\n' "$file"; fi
 done
 
@@ -140,8 +140,8 @@ fi
 section 'API checks'
 if command -v curl >/dev/null 2>&1; then
   curl -sS --connect-timeout 2 --max-time 4 -w '\napi_health_http_status=%{http_code}\n' http://127.0.0.1:8080/health 2>&1 || true
-  if [[ -f sample-request.json ]]; then
-    curl -sS --connect-timeout 2 --max-time 8 -w '\napi_predict_http_status=%{http_code}\n' -H 'Content-Type: application/json' --data-binary @sample-request.json http://127.0.0.1:8080/predict 2>&1 || true
+  if [[ -f data/examples/sample-request.json ]]; then
+    curl -sS --connect-timeout 2 --max-time 8 -w '\napi_predict_http_status=%{http_code}\n' -H 'Content-Type: application/json' --data-binary @data/examples/sample-request.json http://127.0.0.1:8080/predict 2>&1 || true
   fi
 fi
 

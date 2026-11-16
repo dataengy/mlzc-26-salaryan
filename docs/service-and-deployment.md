@@ -8,7 +8,7 @@ Run `make train` first if the model artifact is missing, then start the service:
 make serve
 ```
 
-The API exposes `GET /health` and `POST /predict`. The prediction request schema is demonstrated by `sample-request.json`. The response contains an annual USD estimate and an educational-use disclaimer. Pydantic rejects invalid or missing fields, including `remote_ratio` outside 0–100.
+The API exposes `GET /health` and `POST /predict`. The prediction request schema is demonstrated by `data/examples/sample-request.json`. The response contains an annual USD estimate and an educational-use disclaimer. Pydantic rejects invalid or missing fields, including `remote_ratio` outside 0–100.
 
 In another terminal:
 
@@ -16,7 +16,7 @@ In another terminal:
 curl -fsS http://localhost:8080/health
 curl -fsS -X POST http://localhost:8080/predict \
   -H 'Content-Type: application/json' \
-  -d @sample-request.json
+  -d @data/examples/sample-request.json
 ```
 
 ## Docker
@@ -28,7 +28,7 @@ docker build -t mlzc-salary .
 docker run --rm -p 8080:8080 mlzc-salary
 ```
 
-`make docker-check` builds the image, launches a temporary container on host port 18080, checks `/health`, posts `sample-request.json` to `/predict`, then removes the container. The checked run built successfully and both endpoints returned successful responses.
+`make docker-check` builds the image, launches a temporary container on host port 18080, checks `/health`, posts `data/examples/sample-request.json` to `/predict`, then removes the container. The checked run built successfully and both endpoints returned successful responses.
 
 ```mermaid
 flowchart LR
