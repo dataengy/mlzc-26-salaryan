@@ -1,0 +1,73 @@
+project:
+  distribution: mlzc-26-salaryan
+  package: mlzc_26_salaryan
+  python: "3.12"
+  dockerfile: deploy/Dockerfile
+  requirements: settings/requirements.txt
+  pytest_config: settings/pytest.ini
+
+paths:
+  dataset: data/salaries.csv
+  provenance: data/source.json
+  reports: reports
+  model: models/model.joblib
+  metrics: models/metrics.json
+  request_example: data/examples/sample-request.json
+  notebook: notebooks/salary-prediction.ipynb
+
+data:
+  source_url: https://raw.githubusercontent.com/foorilla/ai-jobs-net-salaries/main/salaries.csv
+  minimum_download_bytes: 10000
+  target: salary_in_usd
+  year: work_year
+  minimum_salary_usd: 5000
+  maximum_salary_usd: 1000000
+  unknown_category: UNKNOWN
+
+model:
+  features:
+    - experience_level
+    - employment_type
+    - job_title
+    - employee_residence
+    - remote_ratio
+    - company_location
+    - company_size
+  max_rows: 50000
+  sample_seed: 42
+  minimum_clean_rows: 100
+  temporal_split:
+    train_through_year: 2023
+    validation_year: 2024
+    test_from_year: 2025
+    minimum_rows_per_partition: 20
+  fallback_split:
+    train_fraction: 0.6
+    validation_fraction: 0.2
+    test_fraction: 0.2
+    seed: 42
+  minimum_rows_per_partition: 20
+  candidates:
+    - {name: dummy_median, kind: dummy, param: 1}
+    - {name: ridge_alpha_1, kind: ridge, param: 1}
+    - {name: ridge_alpha_20, kind: ridge, param: 20}
+    - {name: forest_depth_8, kind: forest, param: 8}
+    - {name: forest_depth_12, kind: forest, param: 12}
+
+eda:
+  importance_model: ridge
+  importance_param: 1
+  importance_max_rows: 2000
+  importance_repeats: 2
+  importance_seed: 42
+  permutation_jobs: 1
+
+api:
+  host: 127.0.0.1
+  port: 8080
+  health_path: /health
+  predict_path: /predict
+
+docker:
+  image: mlzc-salary
+  check_host_port: 18080

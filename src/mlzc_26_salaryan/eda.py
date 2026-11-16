@@ -10,8 +10,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.inspection import permutation_importance
 
+from .config import get_config, project_path
 from .model_utils import FEATURES, TARGET, clean_data, make_model
 from .train import split_data
+
+CONFIG = get_config()
 
 
 def run(source: Path, output: Path) -> None:
@@ -24,20 +27,22 @@ def run(source: Path, output: Path) -> None:
     fig.tight_layout()
     fig.savefig(output / "salary_histogram.png", dpi=120)
     plt.close(fig)
-    model_data = data.sample(n=50_000, random_state=42).reset_index(drop=True) if len(data) > 50_000 else data
+    model_config = CONFIG["model"]
+    model_data = data.sample(n=model_config["max_rows"], random_state=model_config["sample_seed"]).reset_index(drop=True) if len(data) > model_config["max_rows"] else data
     train, validation, test, split_info = split_data(model_data)
-    model = make_model("ridge", 1)
+    importance_config = CONFIG["eda"]
+    model = make_model(importance_config["importance_model"], importance_config["importance_param"])
     fit_data = pd.concat([train, validation], ignore_index=True)
     model.fit(fit_data[FEATURES], fit_data[TARGET])
-    importance_data = test.sample(n=min(2_000, len(test)), random_state=42)
+    importance_data = test.sample(n=min(importance_config["importance_max_rows"], len(test)), random_state=importance_config["importance_seed"])
     importance = permutation_importance(
         model,
         importance_data[FEATURES],
         importance_data[TARGET],
         scoring="neg_mean_absolute_error",
-        n_repeats=2,
-        random_state=42,
-        n_jobs=1,
+        n_repeats=importance_config["importance_repeats"],
+        random_state=importance_config["importance_seed"],
+        n_jobs=importance_config["permutation_jobs"],
     )
     importance_frame = pd.DataFrame({
         "feature": FEATURES,
@@ -81,7 +86,7 @@ def run(source: Path, output: Path) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", type=Path, default=Path("data/salaries.csv"))
-    parser.add_argument("--output", type=Path, default=Path("reports"))
+    parser.add_argument("--data", type=Path, default=project_path("dataset"))
+    parser.add_argument("--output", type=Path, default=project_path("reports"))
     args = parser.parse_args()
     run(args.data, args.output)

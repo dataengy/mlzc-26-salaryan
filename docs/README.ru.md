@@ -14,17 +14,38 @@ EDA включает распределение целевой переменн�
 
 ## Установка и запуск
 
-Установите `uv`, затем из корня репозитория выполните (Python 3.12):
+Для чистого macOS/Linux установите `uv` и `direnv` по официальным инструкциям, затем один раз выполните из корня репозитория (Python 3.12):
+
+```mermaid
+flowchart LR
+    A[Установить uv и direnv] --> B[uv python install 3.12]
+    B --> C[uv sync --locked]
+    C --> D[Настроить hook оболочки]
+    D --> E[direnv allow]
+    E --> F[python и pytest доступны в PATH]
+```
 
 ```bash
-make setup
+uv python install 3.12
+uv sync --locked
+direnv allow
+```
+
+Настройте загрузку direnv для своей оболочки: `direnv hook zsh` для zsh или `direnv hook bash` для bash. Добавьте выведенную команду в файл запуска оболочки и перезапустите её. Файл `.envrc` добавляет `.venv/bin` в `PATH`. Находясь в репозитории, убедитесь, что команды доступны:
+
+```bash
+python --version
+pytest --version
+```
+
+После этого запустите команды проекта:
+
+```bash
 make data
 make eda
 make train
 make test
 ```
-
-`.envrc` добавляет `.venv/bin` в `PATH`. Если используется direnv, один раз выполните `direnv allow`. Без direnv запускайте Python как `.venv/bin/python` или пользуйтесь Make-целями.
 
 Запуск API через `make serve`; в другом терминале проверьте:
 

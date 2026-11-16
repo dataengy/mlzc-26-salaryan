@@ -6,24 +6,29 @@ import json
 from pathlib import Path
 from urllib.request import urlopen
 
-URL = "https://raw.githubusercontent.com/foorilla/ai-jobs-net-salaries/main/salaries.csv"
+from mlzc_26_salaryan.config import get_config, project_path
+
+CONFIG = get_config()
+URL = CONFIG["data"]["source_url"]
 
 
 def main(dest: Path):
     dest.parent.mkdir(parents=True, exist_ok=True)
     with urlopen(URL, timeout=45) as response:
         content = response.read()
-    if len(content) < 10_000:
+    if len(content) < CONFIG["data"]["minimum_download_bytes"]:
         raise RuntimeError(f"Unexpectedly small download: {len(content)} bytes")
-    if b"salary_in_usd" not in content[:3000]:
+    if CONFIG["data"]["target"].encode() not in content[:3000]:
         raise RuntimeError("CSV header did not contain salary_in_usd")
     dest.write_bytes(content)
     info = {"url": URL, "bytes": len(content), "sha256": hashlib.sha256(content).hexdigest()}
-    (dest.parent / "source.json").write_text(json.dumps(info, indent=2), encoding="utf-8")
+    provenance = project_path("provenance") if dest == project_path("dataset") else dest.parent / "source.json"
+    provenance.parent.mkdir(parents=True, exist_ok=True)
+    provenance.write_text(json.dumps(info, indent=2), encoding="utf-8")
     print(info)
 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--dest", type=Path, default=Path("data/salaries.csv"))
+    p.add_argument("--dest", type=Path, default=project_path("dataset"))
     main(p.parse_args().dest)

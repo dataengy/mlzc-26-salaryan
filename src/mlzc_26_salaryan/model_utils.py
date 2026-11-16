@@ -11,12 +11,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import TransformedTargetRegressor
 
-TARGET = "salary_in_usd"
-FEATURES = [
-    "experience_level", "employment_type", "job_title",
-    "employee_residence", "remote_ratio", "company_location", "company_size",
-]
-REQUIRED = FEATURES + [TARGET, "work_year"]
+from .config import get_config
+
+PROJECT_CONFIG = get_config()
+TARGET = PROJECT_CONFIG["data"]["target"]
+YEAR = PROJECT_CONFIG["data"]["year"]
+FEATURES = PROJECT_CONFIG["model"]["features"]
+REQUIRED = FEATURES + [TARGET, YEAR]
 
 
 def clean_data(frame: pd.DataFrame) -> pd.DataFrame:
@@ -24,14 +25,16 @@ def clean_data(frame: pd.DataFrame) -> pd.DataFrame:
     if missing:
         raise ValueError(f"Missing dataset columns: {sorted(missing)}")
     df = frame[REQUIRED].copy()
+    data_config = PROJECT_CONFIG["data"]
     df[TARGET] = pd.to_numeric(df[TARGET], errors="coerce")
-    df["work_year"] = pd.to_numeric(df["work_year"], errors="coerce")
-    df = df.dropna(subset=[TARGET, "work_year"])
-    df = df[(df[TARGET] > 5000) & (df[TARGET] < 1_000_000)]
-    df["work_year"] = df["work_year"].astype(int)
+    df[YEAR] = pd.to_numeric(df[YEAR], errors="coerce")
+    df = df.dropna(subset=[TARGET, YEAR])
+    df = df[(df[TARGET] > data_config["minimum_salary_usd"]) & (df[TARGET] < data_config["maximum_salary_usd"])]
+    df[YEAR] = df[YEAR].astype(int)
     for col in FEATURES:
-        df[col] = df[col].fillna("UNKNOWN").astype(str).str.strip()
-        df[col] = df[col].replace("", "UNKNOWN")
+        unknown = data_config["unknown_category"]
+        df[col] = df[col].fillna(unknown).astype(str).str.strip()
+        df[col] = df[col].replace("", unknown)
     return df.drop_duplicates().reset_index(drop=True)
 
 

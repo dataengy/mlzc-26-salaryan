@@ -1,0 +1,43 @@
+runtime:
+  directory: .run
+  python_cache: .run/python-cache
+  matplotlib_cache: .run/matplotlib
+  pytest_cache: .run/pytest-cache
+  uv_cache: .run/uv-cache
+  e2e_workspace: .run/e2e
+
+quality_gates:
+  smoke:
+    pytest_path: tests/smoke
+  unit:
+    pytest_path: tests/unit
+  integration:
+    pytest_path: tests/integration
+  e2e:
+    pytest_path: tests/e2e
+    origin_remote: origin
+    git_ref_env: E2E_GIT_REF
+    clone_timeout_seconds: 180
+    command_timeout_seconds: 900
+    include_docker: true
+    cleanup_workspace: true
+    commands:
+      - [uv, sync, --locked, --python, "3.12"]
+      - [make, data]
+      - [make, eda]
+      - [make, train]
+      - [make, test]
+      - [make, docker-check]
+    checkpoints:
+      - data/salaries.csv
+      - data/source.json
+      - reports/EDA.md
+      - reports/salary_histogram.png
+      - reports/feature_importance.csv
+      - reports/feature_importance.png
+      - models/model.joblib
+      - models/metrics.json
+
+timeouts:
+  unit_seconds: 60
+  integration_seconds: 180

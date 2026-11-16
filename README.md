@@ -1,3 +1,5 @@
+[Repository guidelines](AGENTS.md) · [Detailed agent instructions](.ai/AGENTS.md)
+
 **EN** | [RU](docs/README.ru.md)
 
 # AI / Data Job Salary Predictor — ML Zoomcamp 2026 Midterm
@@ -14,17 +16,38 @@ EDA reports target distribution, missingness, median salary by experience, and p
 
 ## Setup and run
 
-Install `uv`, then run these commands from the repository root (Python 3.12):
+For a clean macOS or Linux environment, install `uv` and `direnv` using their official installation instructions, then run this once from the repository root (Python 3.12):
+
+```mermaid
+flowchart LR
+    A[Install uv and direnv] --> B[uv python install 3.12]
+    B --> C[uv sync --locked]
+    C --> D[Configure shell hook]
+    D --> E[direnv allow]
+    E --> F[python and pytest on PATH]
+```
 
 ```bash
-make setup
+uv python install 3.12
+uv sync --locked
+direnv allow
+```
+
+Configure your shell to load direnv (`direnv hook zsh` for zsh or `direnv hook bash` for bash; add the printed command to your shell's startup file and restart the shell). The repository's `.envrc` adds `.venv/bin` to `PATH`. From the repository, verify the commands are available:
+
+```bash
+python --version
+pytest --version
+```
+
+Then run the project commands:
+
+```bash
 make data
 make eda
 make train
 make test
 ```
-
-`.envrc` adds the project `.venv/bin` to `PATH`. If using direnv, approve it once with `direnv allow`. Without direnv, use `.venv/bin/python` or the Make targets.
 
 Start the API with `make serve`, then in another terminal check it:
 

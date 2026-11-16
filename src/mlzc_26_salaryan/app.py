@@ -11,6 +11,9 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from .config import get_config, project_path
+
+CONFIG = get_config()
 APP = FastAPI(title="ML Zoomcamp AI Salary Predictor", version="1.0")
 
 
@@ -26,13 +29,13 @@ class SalaryRequest(BaseModel):
 
 @lru_cache(maxsize=1)
 def load_model():
-    model_path = Path(os.getenv("MODEL_PATH", "models/model.joblib"))
+    model_path = Path(os.getenv("MODEL_PATH", str(project_path("model"))))
     return joblib.load(model_path)
 
 
 @APP.get("/health")
 def health():
-    model_path = Path(os.getenv("MODEL_PATH", "models/model.joblib"))
+    model_path = Path(os.getenv("MODEL_PATH", str(project_path("model"))))
     if not model_path.is_file():
         raise HTTPException(status_code=503, detail="Model artifact not found")
     return {"status": "ok"}
