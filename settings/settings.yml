@@ -1,5 +1,6 @@
 runtime:
   directory: .run
+  venv: .run/venv
   python_cache: .run/python-cache
   matplotlib_cache: .run/matplotlib
   pytest_cache: .run/pytest-cache

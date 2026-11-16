@@ -1,41 +1,40 @@
 .PHONY: setup kernel run-jupyter data eda train smoke unit integration test e2e serve docker-build docker-run docker-check
 
 setup:
-	uv venv --python 3.12 --allow-existing .venv
-	uv pip install --python .venv/bin/python -r settings/requirements.txt
+	UV_PROJECT_ENVIRONMENT=.run/venv uv sync --locked --python 3.12
 
 kernel: setup
-	uv pip install --python .venv/bin/python ipykernel notebook
-	.venv/bin/python -m ipykernel install --user --name mlzoomcamp-salary --display-name "Python (ML Zoomcamp Salary)"
+	uv pip install --python .run/venv/bin/python ipykernel notebook
+	.run/venv/bin/python -m ipykernel install --user --name mlzc-26-salaryan --display-name "Python (ML Zoomcamp Salary)"
 
 run-jupyter: kernel
-	MPLCONFIGDIR=.run/matplotlib .venv/bin/python -m jupyter notebook notebooks/salary-prediction.ipynb
+	MPLCONFIGDIR=.run/matplotlib .run/venv/bin/python -m jupyter notebook notebooks/salary-prediction.ipynb
 
 data:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python scripts/download.py
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python scripts/download.py
 
 eda:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m mlzc_26_salaryan.eda
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m mlzc_26_salaryan.eda
 
 train:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m mlzc_26_salaryan.train
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m mlzc_26_salaryan.train
 
 smoke:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -q tests/smoke
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -o cache_dir=.run/pytest-cache -q tests/smoke
 
 unit:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -q tests/unit
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -o cache_dir=.run/pytest-cache -q tests/unit
 
 integration:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -q tests/integration
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -o cache_dir=.run/pytest-cache -q tests/integration
 
 e2e:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -q -m e2e tests/e2e
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -o cache_dir=.run/pytest-cache -q -m e2e tests/e2e
 
 test: smoke unit integration
 
 serve:
-	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .venv/bin/python -m uvicorn mlzc_26_salaryan.app:app --reload --port 8080
+	PYTHONPYCACHEPREFIX=.run/python-cache PYTHONPATH=src .run/venv/bin/python -m uvicorn mlzc_26_salaryan.app:app --reload --port 8080
 
 docker-build:
 	docker build -f deploy/Dockerfile -t mlzc-salary .

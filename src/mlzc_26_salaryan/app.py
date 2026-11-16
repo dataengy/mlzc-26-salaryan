@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from .config import get_config, project_path
 
 CONFIG = get_config()
-APP = FastAPI(title="ML Zoomcamp AI Salary Predictor", version="1.0")
+APP = FastAPI(title=CONFIG["api"]["title"], version=CONFIG["api"]["version"])
 
 
 class SalaryRequest(BaseModel):

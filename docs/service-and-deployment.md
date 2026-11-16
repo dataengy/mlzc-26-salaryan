@@ -24,7 +24,7 @@ curl -fsS -X POST http://localhost:8080/predict \
 The Dockerfile installs pinned runtime requirements, copies the service code and tracked model artifact, and starts Uvicorn on the container port. A clean clone can build without downloading the training CSV:
 
 ```bash
-docker build -t mlzc-salary .
+docker build -f deploy/Dockerfile -t mlzc-salary .
 docker run --rm -p 8080:8080 mlzc-salary
 ```
 

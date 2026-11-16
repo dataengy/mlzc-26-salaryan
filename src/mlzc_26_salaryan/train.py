@@ -26,7 +26,10 @@ def split_data(df: pd.DataFrame):
         validation = df[df[YEAR] == split["validation_year"]]
         test = df[df[YEAR] >= split["test_from_year"]]
         if min(map(len, (train, validation, test))) >= split["minimum_rows_per_partition"]:
-            return train, validation, test, "temporal: <=2023 / 2024 / >=2025"
+            return train, validation, test, (
+                f"temporal: <={split['train_through_year']} / "
+                f"{split['validation_year']} / >={split['test_from_year']}"
+            )
     # If source year distribution differs, prefer a documented deterministic fallback.
     fallback = CONFIG["model"]["fallback_split"]
     train_val, test = train_test_split(df, test_size=fallback["test_fraction"], random_state=fallback["seed"])
@@ -52,7 +55,7 @@ def run(csv_path: Path, out_dir: Path, max_rows: int = 50_000) -> dict:
     original_count = len(df)
     if len(df) > max_rows:
         # Deterministic sample speeds up validation for deadline-driven builds.
-        df = df.sample(n=max_rows, random_state=42).reset_index(drop=True)
+        df = df.sample(n=max_rows, random_state=CONFIG["model"]["sample_seed"]).reset_index(drop=True)
     train, validation, test, split_info = split_data(df)
     candidates = [
         (candidate["name"], candidate["kind"], candidate["param"])

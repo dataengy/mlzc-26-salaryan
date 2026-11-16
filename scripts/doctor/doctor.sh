@@ -72,8 +72,8 @@ section 'Commands'
 for c in direnv uv python python3 pytest make docker curl; do check_cmd "$c"; done
 
 section 'Virtual environment and packages'
-if [[ -x .venv/bin/python ]]; then
-  .venv/bin/python - <<'PY'
+if [[ -x .run/venv/bin/python ]]; then
+  .run/venv/bin/python - <<'PY'
 import importlib.metadata as md
 import sys
 print(f"venv_python={sys.executable}")
@@ -85,7 +85,7 @@ for package in ("numpy", "pandas", "scikit-learn", "joblib", "fastapi", "uvicorn
         print(f"package_{package}=MISSING")
 PY
 else
-  printf '%s\n' 'venv_python=MISSING (.venv/bin/python not executable)'
+  printf '%s\n' 'venv_python=MISSING (.run/venv/bin/python not executable)'
 fi
 
 section 'Environment activation'
@@ -93,16 +93,16 @@ if command -v direnv >/dev/null 2>&1; then
   direnv status 2>&1 | sed -n '1,24p' || true
 fi
 printf 'envrc_exists='; [[ -f .envrc ]] && echo yes || echo no
-printf 'venv_bin_in_PATH='; case ":$PATH:" in *":$ROOT/.venv/bin:"*) echo yes;; *) echo no;; esac
+printf 'venv_bin_in_PATH='; case ":$PATH:" in *":$ROOT/.run/venv/bin:"*) echo yes;; *) echo no;; esac
 
 section 'Expected files'
-for file in requirements.txt Makefile .envrc scripts/download.py src/mlzc_26_salaryan/eda.py src/mlzc_26_salaryan/train.py src/mlzc_26_salaryan/app.py src/mlzc_26_salaryan/model_utils.py notebooks/salary-prediction.ipynb data/examples/sample-request.json data/salaries.csv data/source.json reports/EDA.md reports/salary_histogram.png models/model.joblib models/metrics.json; do
+for file in settings/requirements.txt settings/config.yml settings/settings.yml Makefile .envrc scripts/download.py src/mlzc_26_salaryan/eda.py src/mlzc_26_salaryan/train.py src/mlzc_26_salaryan/app.py src/mlzc_26_salaryan/model_utils.py notebooks/salary-prediction.ipynb data/examples/sample-request.json data/salaries.csv data/source.json reports/EDA.md reports/salary_histogram.png models/model.joblib models/metrics.json; do
   if [[ -f "$file" ]]; then printf 'file=%s exists bytes=%s\n' "$file" "$(wc -c < "$file" | tr -d ' ')"; else printf 'file=%s MISSING\n' "$file"; fi
 done
 
 section 'Dataset validation'
-if [[ -f data/salaries.csv && -x .venv/bin/python ]]; then
-  .venv/bin/python - <<'PY'
+if [[ -f data/salaries.csv && -x .run/venv/bin/python ]]; then
+  .run/venv/bin/python - <<'PY'
 from pathlib import Path
 try:
     import pandas as pd
@@ -130,8 +130,8 @@ else
 fi
 
 section 'Tests'
-if [[ -x .venv/bin/python && -f tests/test_pipeline.py ]]; then
-  .venv/bin/python -m pytest -q 2>&1
+if [[ -x .run/venv/bin/python && -d tests ]]; then
+  .run/venv/bin/python -m pytest -c settings/pytest.ini --rootdir=. -o cache_dir=.run/pytest-cache -q tests/smoke tests/unit tests/integration 2>&1
   printf 'pytest_exit=%s\n' "$?"
 else
   echo 'pytest=SKIPPED (virtualenv or tests missing)'

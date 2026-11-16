@@ -60,7 +60,7 @@ def _check_live_api(root: Path, env: dict[str, str]) -> None:
     package = CONFIG["project"]["package"]
     log_path = root / ".run" / "e2e-api.log"
     command = [
-        str(root / ".venv" / "bin" / "python"), "-m", "uvicorn",
+        str(root / ".run" / "venv" / "bin" / "python"), "-m", "uvicorn",
         f"{package}.app:app", "--host", host, "--port", str(port),
     ]
     process = subprocess.Popen(command, cwd=root, env=env, stdout=log_path.open("w"), stderr=subprocess.STDOUT)
@@ -139,6 +139,7 @@ def test_origin_clone_runs_all_project_checkpoints_from_scratch():
         run_env = os.environ.copy()
         run_env.update({
             "UV_CACHE_DIR": str(checkout / runtime["uv_cache"]),
+            "UV_PROJECT_ENVIRONMENT": str(checkout / runtime["venv"]),
             "MPLCONFIGDIR": str(checkout / runtime["matplotlib_cache"]),
             "PYTHONPYCACHEPREFIX": str(checkout / runtime["python_cache"]),
         })
@@ -149,12 +150,16 @@ def test_origin_clone_runs_all_project_checkpoints_from_scratch():
         gate_commands = commands[1:5]
         for command in gate_commands:
             _run(command, checkout, run_env, e2e["command_timeout_seconds"])
+            checkpoint_map = e2e["checkpoints"]
             if command == ["make", "data"]:
-                _assert_paths_exist(checkout, e2e["checkpoints"]["data"], "download")
+                expected = checkpoint_map.get("data", ["data/salaries.csv", "data/source.json"])
+                _assert_paths_exist(checkout, expected, "download")
             elif command == ["make", "eda"]:
-                _assert_paths_exist(checkout, e2e["checkpoints"]["eda"], "EDA")
+                expected = checkpoint_map.get("eda", ["reports/EDA.md", "reports/salary_histogram.png", "reports/feature_importance.csv", "reports/feature_importance.png"])
+                _assert_paths_exist(checkout, expected, "EDA")
             elif command == ["make", "train"]:
-                _assert_paths_exist(checkout, e2e["checkpoints"]["train"], "training")
+                expected = checkpoint_map.get("train", ["models/model.joblib", "models/metrics.json"])
+                _assert_paths_exist(checkout, expected, "training")
 
         _check_live_api(checkout, run_env)
         if e2e.get("include_docker", True):
