@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+data/*.csv
+models/*.joblib
+# Commit models/model.joblib only after training for peer-review and cloud deployment
