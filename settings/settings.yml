@@ -29,14 +29,23 @@ quality_gates:
       - [make, test]
       - [make, docker-check]
     checkpoints:
-      - data/salaries.csv
-      - data/source.json
-      - reports/EDA.md
-      - reports/salary_histogram.png
-      - reports/feature_importance.csv
-      - reports/feature_importance.png
-      - models/model.joblib
-      - models/metrics.json
+      data:
+        - data/salaries.csv
+        - data/source.json
+      eda:
+        - reports/EDA.md
+        - reports/salary_histogram.png
+        - reports/feature_importance.csv
+        - reports/feature_importance.png
+      train:
+        - models/model.joblib
+        - models/metrics.json
+      api:
+        - GET /health returns status=ok
+        - POST /predict returns a non-negative USD/year estimate
+      docker:
+        - GET /health returns status=ok
+        - POST /predict returns a non-negative USD/year estimate
 
 timeouts:
   unit_seconds: 60

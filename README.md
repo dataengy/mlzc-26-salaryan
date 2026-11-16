@@ -16,7 +16,7 @@ EDA reports target distribution, missingness, median salary by experience, and p
 
 ## Setup and run
 
-For a clean macOS or Linux environment, install `uv` and `direnv` using their official installation instructions, then run this once from the repository root (Python 3.12):
+For a clean macOS or Linux environment, install `uv` and `direnv` using their official installation instructions, then run this once from the repository root (Python 3.12, pinned in `settings/.python-version`):
 
 ```mermaid
 flowchart LR
@@ -49,6 +49,8 @@ make train
 make test
 ```
 
+Run focused quality gates with `make smoke`, `make unit`, or `make integration`. `make e2e` clones the configured Git remote into `.run/` and checks the clean-clone data, EDA, training, API, and Docker workflow. Configure a Git remote named `origin` and publish the branch first.
+
 Start the API with `make serve`, then in another terminal check it:
 
 ```bash
@@ -63,7 +65,7 @@ curl -fsS -X POST http://localhost:8080/predict \
 The trained model artifact is tracked in Git, so a clean clone can build the service image:
 
 ```bash
-docker build -t mlzc-salary .
+docker build -f deploy/Dockerfile -t mlzc-salary .
 docker run --rm -p 8080:8080 mlzc-salary
 ```
 
