@@ -12,19 +12,19 @@ run-jupyter: kernel
 	.venv/bin/python -m jupyter notebook notebook.ipynb
 
 data:
-	uv run --python .venv/bin/python scripts/download.py
+	.venv/bin/python scripts/download.py
 
 eda:
-	uv run --python .venv/bin/python eda.py
+	PYTHONPATH=src .venv/bin/python -m mlzoomcamp_salary_minimal.eda
 
 train:
-	uv run --python .venv/bin/python train.py
+	PYTHONPATH=src .venv/bin/python -m mlzoomcamp_salary_minimal.train
 
 test:
-	uv run --python .venv/bin/python -m pytest -q
+	PYTHONPATH=src .venv/bin/python -m pytest -q
 
 serve:
-	uv run --python .venv/bin/python -m uvicorn app:app --reload --port 8080
+	PYTHONPATH=src .venv/bin/python -m uvicorn mlzoomcamp_salary_minimal.app:app --reload --port 8080
 
 docker-build:
 	docker build -t mlzc-salary .
@@ -45,4 +45,4 @@ docker-check: docker-build
 	if [ -z "$$ready" ]; then echo 'Health check failed' >&2; exit 1; fi; \
 	curl -fsS -X POST http://localhost:18080/predict \
 		-H 'Content-Type: application/json' \
-		-d @sample-request.json
+		-d @data/examples/sample-request.json

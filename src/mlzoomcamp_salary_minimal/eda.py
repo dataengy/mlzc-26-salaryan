@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.inspection import permutation_importance
 
-from model_utils import FEATURES, TARGET, clean_data, make_model
-from train import split_data
+from .model_utils import FEATURES, TARGET, clean_data, make_model
+from .train import split_data
 
 
 def run(source: Path, output: Path) -> None:

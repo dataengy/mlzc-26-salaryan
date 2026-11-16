@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 
-from model_utils import FEATURES, TARGET, clean_data, make_model
+from .model_utils import FEATURES, TARGET, clean_data, make_model
 
 
 def split_data(df: pd.DataFrame):
