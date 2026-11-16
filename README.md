@@ -6,15 +6,15 @@
 
 ## Run locally (Python 3.12 recommended)
 
+This repo uses `uv` and a local `.venv`. After installing `uv`, run:
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python scripts/download.py
-python eda.py
-python train.py
-pytest -q
-uvicorn app:app --reload --port 8080
+make setup
+make data
+make eda
+make train
+make test
+make serve
 ```
 
 In another terminal:
@@ -26,14 +26,28 @@ curl -fsS -X POST http://localhost:8080/predict \
   -d @sample-request.json
 ```
 
-For Docker, **first** run `train.py` to create the artifact:
+The trained artifact `models/model.joblib` is committed with the project so a
+fresh clone contains everything needed to build and run the Docker image. To
+retrain it from the source data, run `make data` followed by `make train`.
+Then build and start the container:
 
 ```bash
 docker build -t mlzc-salary .
 docker run --rm -p 8080:8080 mlzc-salary
 ```
 
-**Docker verification:** run the same `/health` and `/predict` curl requests while the container is running. For reviewers, commit `models/model.joblib` (it is ignored by default; use `git add -f models/model.joblib`) so Docker image builds from a clean clone. Commit `models/metrics.json`, `reports/EDA.md`, and EDA plots. Original CSV need not be committed; the download script fetches it.
+**Docker verification:** with the container running, check both endpoints:
+
+```bash
+curl -fsS http://localhost:8080/health
+curl -fsS -X POST http://localhost:8080/predict \
+  -H 'Content-Type: application/json' \
+  -d @sample-request.json
+```
+
+`models/model.joblib` is tracked in Git and included in the image. The original
+CSV need not be committed; the download script fetches it. Training metrics and
+EDA outputs are generated locally and are not required to serve predictions.
 
 ## Data and leakage controls
 

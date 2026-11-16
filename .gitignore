@@ -3,5 +3,7 @@ __pycache__/
 .pytest_cache/
 *.py[cod]
 data/*.csv
+# The trained model is required by the Docker image and prediction API.
 models/*.joblib
+!models/model.joblib
 # Commit models/model.joblib only after training for peer-review and cloud deployment
