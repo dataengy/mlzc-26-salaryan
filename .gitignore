@@ -2,6 +2,10 @@
 __pycache__/
 .pytest_cache/
 *.py[cod]
+*.ru.md
+.ipynb_checkpoints/
+doctor.log
+*.bak*
 data/*.csv
 # The trained model is required by the Docker image and prediction API.
 models/*.joblib
