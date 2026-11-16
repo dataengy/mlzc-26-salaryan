@@ -21,7 +21,7 @@ For a clean macOS or Linux environment, install `uv` and `direnv` using their of
 ```mermaid
 flowchart LR
     A[Install uv and direnv] --> B[uv python install 3.12]
-    B --> C[uv sync --locked]
+    B --> C[UV_PROJECT_ENVIRONMENT=.run/venv uv sync --locked --python 3.12]
     C --> D[Configure shell hook]
     D --> E[direnv allow]
     E --> F[python and pytest on PATH]
@@ -29,11 +29,11 @@ flowchart LR
 
 ```bash
 uv python install 3.12
-uv sync --locked
+UV_PROJECT_ENVIRONMENT=.run/venv uv sync --locked --python 3.12
 direnv allow
 ```
 
-Configure your shell to load direnv (`direnv hook zsh` for zsh or `direnv hook bash` for bash; add the printed command to your shell's startup file and restart the shell). The repository's `.envrc` adds `.venv/bin` to `PATH`. From the repository, verify the commands are available:
+Configure your shell to load direnv (`direnv hook zsh` for zsh or `direnv hook bash` for bash; add the printed command to your shell's startup file and restart the shell). The repository's `.envrc` adds `.run/venv/bin` to `PATH`. From the repository, verify the commands are available:
 
 ```bash
 python --version

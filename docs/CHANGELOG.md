@@ -6,7 +6,7 @@
 
 **Updated 2026-11-17.** Implementation checks 1–4 are complete: notebook code cells executed against the downloaded data; EDA includes held-out permutation importance; local API and Docker endpoints were smoke-tested; pytest passed. Source is organized under `src/mlzc_26_salaryan/`, the notebook under `notebooks/`, and runtime caches/logs under ignored `.run/`. Current checked metrics: Ridge(alpha=1), test MAE **$47,217.81**, RMSE **$67,735.40**.
 
-**Next:** rename the parent project directory to `mlzc-26-salaryan` when the current workspace releases its path lock; finish and commit the root cleanup; submit the final SHA and complete three peer reviews. No Cloud Run deployment is claimed.
+**Next:** finish the test and settings changes, submit the final SHA, and complete three peer reviews. The canonical project directory is `mlzc-26-salaryan`; `mlzoomcamp-salary-minimal` remains a compatibility symlink. No Cloud Run deployment is claimed.
 
 ```mermaid
 flowchart LR
@@ -21,7 +21,9 @@ flowchart LR
 - Renamed the Python distribution and import package to `mlzc-26-salaryan` / `mlzc_26_salaryan`.
 - Moved local logs, notebook checkpoints, test caches, Python bytecode, and Matplotlib cache under ignored `.run/`.
 - Updated Make, Docker, notebook, doctor script, tests, and localized documentation to the new package and file paths.
-- The parent directory rename is pending because the active workspace currently locks its own checkout path.
+- Kept `mlzc-26-salaryan` as the canonical project directory and preserved the former name as a compatibility symlink.
+- Organized settings and runtime files under `settings/`, `deploy/`, and `.run/`; `.dockerignore` remains a regular root file for Docker compatibility.
+- Added smoke, unit, integration, and origin-clone e2e test levels.
 
 ## 2026-11-17 — Documentation and implementation review
 
