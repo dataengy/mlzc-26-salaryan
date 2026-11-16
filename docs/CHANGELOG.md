@@ -4,9 +4,9 @@
 
 ## Current status (BOF)
 
-**Updated 2026-11-17.** Implementation checks 1–4 are complete: notebook code cells executed against the downloaded data; EDA includes held-out permutation importance; local API and Docker endpoints were smoke-tested; pytest passed. Source is organized under `src/mlzc_26_salaryan/`, the notebook under `notebooks/`, and runtime caches/logs under ignored `.run/`. Current checked metrics: Ridge(alpha=1), test MAE **$47,217.81**, RMSE **$67,735.40**.
+**Updated 2026-11-17.** Implementation checks 1–4 and the clean-clone e2e are complete. Tests passed: 3 smoke, 4 unit, 1 integration, and 1 origin-clone e2e. The e2e cloned `origin/main`, installed a fresh environment, downloaded data, generated EDA/model artifacts, and checked HTTP and Docker health/predict endpoints. Source is under `src/mlzc_26_salaryan/`, the notebook under `notebooks/`, and runtime files under ignored `.run/`. Current checked metrics: Ridge(alpha=1), test MAE **$47,217.81**, RMSE **$67,735.40**.
 
-**Next:** finish the test and settings changes, submit the final SHA, and complete three peer reviews. The canonical project directory is `mlzc-26-salaryan`; `mlzoomcamp-salary-minimal` remains a compatibility symlink. No Cloud Run deployment is claimed.
+**Next:** record the pushed commit SHA in the course submission and complete three peer reviews. The canonical project directory is `mlzc-26-salaryan`; `mlzoomcamp-salary-minimal` remains a compatibility symlink. No Cloud Run deployment is claimed.
 
 ```mermaid
 flowchart LR
@@ -24,6 +24,7 @@ flowchart LR
 - Kept `mlzc-26-salaryan` as the canonical project directory and preserved the former name as a compatibility symlink.
 - Organized settings and runtime files under `settings/`, `deploy/`, and `.run/`; `.dockerignore` remains a regular root file for Docker compatibility.
 - Added smoke, unit, integration, and origin-clone e2e test levels.
+- Moved the active environment and the preserved previous environment under `.run/venv` and `.run/venv-legacy`.
 
 ## 2026-11-17 — Documentation and implementation review
 
