@@ -26,5 +26,6 @@ requires = ["uv_build>=0.13.0,<0.14.0"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 testpaths = ["tests"]
+markers = ["e2e: end-to-end tests that exercise a fresh clone and external services"]
