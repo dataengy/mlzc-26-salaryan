@@ -4,6 +4,8 @@ __pycache__/
 *.py[cod]
 *.ru.md
 .run/
+# Linked Git worktrees are managed separately from the main checkout.
+/git-worktrees/
 .venv/
 .pytest_cache/
 __pycache__/
